@@ -1,5 +1,5 @@
-// const fs = require('fs/promises')
-// const contacts = require('./contacts.json')
+const fs = require('fs/promises')
+const contacts = require('./contacts.json')
 
 const listContacts = async () => {}
 
