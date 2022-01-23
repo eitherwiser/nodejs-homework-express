@@ -1,8 +1,8 @@
 const fs = require('fs/promises');
 const path = require('path');
-const { nanoid } = require('nanoid');
+const { randomUUID } = require('crypto');
 
-const contacts = path.join(__dirname, 'contacts.json');
+const contacts = path.resolve(__dirname, 'contacts.json');
 
 async function writeJSON(data) {  
   const newObj = [...data];
@@ -58,7 +58,7 @@ const removeContact = async (contactId) => {
 
 const addContact = async (body) => {
   try {
-    const contact = { "id": nanoid().toString(), ...body };
+    const contact = { "id": randomUUID().toString(), ...body };
     await writeJSON([...await listContacts(), contact]);
     return contact;
   }
