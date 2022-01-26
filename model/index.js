@@ -4,69 +4,58 @@ const { randomUUID } = require('crypto');
 
 const contacts = path.resolve(__dirname, 'contacts.json');
 
-async function writeJSON(data) {  
+async function writeJSON(data) {
   const newObj = [...data];
-  fs.writeFile(contacts, JSON.stringify(newObj, null, '\t'))
+  fs.writeFile(contacts, JSON.stringify(newObj, null, '\t'));
 }
-
 
 const listContacts = async () => {
   try {
     const data = await fs.readFile(contacts);
     return JSON.parse(data);
-  }
-  catch (error) {
-    console.log(error)
+  } catch (error) {
+    console.log(error);
   }
 };
 
-
-const getContactById = async (contactId) => {
+const getContactById = async contactId => {
   try {
     const contacts = await listContacts();
-    const index = contacts.findIndex(el => el.id === contactId)
+    const index = contacts.findIndex(el => el.id === contactId);
     if (index === -1) {
       return false;
-    }
-    else {
+    } else {
       return contacts[index];
     }
-  }
-  catch (error) {
-    console.log(error)
+  } catch (error) {
+    console.log(error);
   }
 };
 
-
-const removeContact = async (contactId) => {
+const removeContact = async contactId => {
   try {
     const contacts = await listContacts();
     if (contacts.findIndex(el => el.id === contactId) === -1) {
-      return false
-    }
-    else {
+      return false;
+    } else {
       const newContacts = contacts.filter(el => el.id !== contactId);
       await writeJSON(newContacts);
       return true;
-      }
+    }
+  } catch (error) {
+    console.log(error);
   }
-  catch (error) {
-    console.log(error)
-  }
-}
+};
 
-
-const addContact = async (body) => {
+const addContact = async body => {
   try {
-    const contact = { "id": randomUUID().toString(), ...body };
-    await writeJSON([...await listContacts(), contact]);
+    const contact = { id: randomUUID().toString(), ...body };
+    await writeJSON([...(await listContacts()), contact]);
     return contact;
+  } catch (error) {
+    console.log(error);
   }
-    catch (error) {
-    console.log(error)
-  }
-}
-
+};
 
 const updateContact = async (contactId, body) => {
   try {
@@ -75,20 +64,18 @@ const updateContact = async (contactId, body) => {
     if (!contact) {
       console.log('ERORR');
       return false;
-    }
-    else {
-      contact = {...contact, ...body}
+    } else {
+      contact = { ...contact, ...body };
       console.table(contact);
       const contacts = await listContacts();
       const newContacts = contacts.filter(el => el.id !== contactId);
-      await writeJSON([...newContacts, contact ]);
+      await writeJSON([...newContacts, contact]);
       return contact;
     }
+  } catch (error) {
+    console.log(error);
   }
-  catch (error) {
-    console.log(error)
-  }
-}
+};
 
 module.exports = {
   listContacts,
@@ -96,4 +83,4 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
-}
+};

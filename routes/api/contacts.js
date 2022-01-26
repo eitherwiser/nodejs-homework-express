@@ -1,5 +1,5 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 const { NotFound } = require('http-errors');
 
 const {
@@ -8,8 +8,7 @@ const {
   removeContact,
   addContact,
   updateContact,
-} = require('../../model')
-
+} = require('../../model');
 
 router.get('/', async (req, res, next) => {
   try {
@@ -17,13 +16,12 @@ router.get('/', async (req, res, next) => {
     res.json({
       status: 'success',
       code: 200,
-      data: { contacts }
+      data: { contacts },
     });
-  }
-  catch (error) {
+  } catch (error) {
     next(error);
   }
-})
+});
 
 router.get('/:contactId', async (req, res, next) => {
   const { contactId } = req.params;
@@ -31,16 +29,14 @@ router.get('/:contactId', async (req, res, next) => {
     const contact = await getContactById(contactId);
     if (!contact) {
       throw new NotFound();
-    }
-    else {
+    } else {
       res.json({
         status: 'success',
         code: 200,
-        data: contact
+        data: contact,
       });
     }
-  }
-  catch (error) {
+  } catch (error) {
     next(error);
   }
 });
@@ -51,13 +47,12 @@ router.post('/', async (req, res, next) => {
     res.json({
       status: 'success',
       code: 200,
-      data: newContact
+      data: newContact,
     });
-  }
-  catch (error) {
+  } catch (error) {
     next(error);
   }
-})
+});
 
 router.delete('/:contactId', async (req, res, next) => {
   const { contactId } = req.params;
@@ -69,13 +64,12 @@ router.delete('/:contactId', async (req, res, next) => {
     res.json({
       status: 'success',
       code: 200,
-      message: 'contact deleted'
-    })
+      message: 'contact deleted',
+    });
+  } catch (error) {
+    next(error);
   }
-  catch (error) {
-    next(error)
-  }
-})
+});
 
 router.patch('/:contactId', async (req, res, next) => {
   const { contactId } = req.params;
@@ -87,13 +81,12 @@ router.patch('/:contactId', async (req, res, next) => {
       res.json({
         status: 'success',
         code: 200,
-        data: contact
-      })
+        data: contact,
+      });
     }
+  } catch (error) {
+    next(error);
   }
-  catch (error) {
-    next(error)
-  }
-})
+});
 
 module.exports = router;
