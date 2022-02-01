@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { NotFound } = require('http-errors');
 
-const { Contacts } = require('../../model/');
+const { Contact } = require('../../models');
 
 router.get('/', async (req, res, next) => {
   try {
-    const contacts = await Contacts.find();
+    const contacts = await Contact.find();
     res.json({
       status: 'success',
       code: 200,
@@ -18,9 +18,9 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/:contactId', async (req, res, next) => {
-  const { contactId } = req.params;
   try {
-    const contact = await Contacts.findById(contactId);
+    const { contactId } = req.params;
+    const contact = await Contact.findById(contactId);
     if (!contact) {
       throw new NotFound();
     } else {
@@ -43,7 +43,7 @@ router.post('/', async (req, res, next) => {
     return req.body;
   };
   try {
-    const newContact = await Contacts.create(bodyValidation());
+    const newContact = await Contact.create(bodyValidation());
     res.json({
       status: 'success',
       code: 200,
@@ -55,9 +55,9 @@ router.post('/', async (req, res, next) => {
 });
 
 router.delete('/:contactId', async (req, res, next) => {
-  const { contactId } = req.params;
   try {
-    const result = await Contacts.findByIdAndDelete(contactId);
+    const { contactId } = req.params;
+    const result = await Contact.findByIdAndDelete(contactId);
     if (!result) {
       throw new NotFound();
     }
@@ -72,9 +72,9 @@ router.delete('/:contactId', async (req, res, next) => {
 });
 
 router.put('/:contactId', async (req, res, next) => {
-  const { contactId } = req.params;
   try {
-    const contact = await Contacts.findByIdAndUpdate(contactId, req.body, {
+    const { contactId } = req.params;
+    const contact = await Contact.findByIdAndUpdate(contactId, req.body, {
       new: true,
     });
     if (!contact) {
@@ -102,7 +102,7 @@ router.patch('/:contactId/favorite', async (req, res, next) => {
     } else {
       const { contactId } = req.params;
       const { favorite } = req.body;
-      const contact = await Contacts.findByIdAndUpdate(
+      const contact = await Contact.findByIdAndUpdate(
         contactId,
         { favorite },
         { new: true },
