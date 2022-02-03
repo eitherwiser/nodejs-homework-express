@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
+const gravatar = require('gravatar');
 
 const { emailRegExp } = require('../helpers');
 
@@ -20,6 +21,10 @@ const userSchema = Schema(
       enum: ['starter', 'business', 'pro'],
       default: 'starter',
     },
+    avatarURL: {
+      type: String,
+      default: '/no-picture.svg',
+    },
     token: {
       type: String,
       default: null,
@@ -31,6 +36,18 @@ const userSchema = Schema(
 userSchema.methods.setPassword = async function (password) {
   try {
     this.password = await bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+userSchema.methods.setAvatarUrl = async function (email) {
+  try {
+    this.avatarURL = await gravatar.url(email, {
+      protocol: 'http',
+      s: '100',
+      d: 'retro',
+    });
   } catch (error) {
     throw new Error(error.message);
   }

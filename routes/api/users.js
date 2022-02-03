@@ -19,6 +19,7 @@ router.post('/signup', async (req, res, next) => {
 
     const newUser = new User({ email, subscription });
     await newUser.setPassword(password);
+    await newUser.setAvatarURL(email);
     await newUser.save();
 
     res.status(201).json({
@@ -103,6 +104,31 @@ router.patch('/', authenticate, async (req, res, next) => {
       code: 200,
       message: `subscription updated to ${subscription}`,
       data: { User: newSubscription },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+//! add helper for rename picture
+
+router.patch('/avatars', authenticate, async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { avatarURL } = req.body;
+    const newAvatarURL = await User.findOneAndUpdate(
+      { _id },
+      { avatarURL },
+      {
+        new: true,
+        select: '-createdAt -updatedAt -password - subscription -token',
+      },
+    );
+
+    res.json({
+      status: 'updated',
+      code: 200,
+      data: { User: newAvatarURL },
     });
   } catch (error) {
     next(error);
