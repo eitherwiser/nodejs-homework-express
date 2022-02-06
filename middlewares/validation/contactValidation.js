@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const { BadRequest } = require('http-errors');
-const { emailRegExp, phoneRegExp } = require('../../helpers');
+const { emailRegExp, phoneRegExp } = require('../../constants/');
 
 const contactNew = Joi.object({
   name: Joi.string()

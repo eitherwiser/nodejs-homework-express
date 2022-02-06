@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
 const gravatar = require('gravatar');
 
-const { emailRegExp } = require('../helpers');
+const { emailRegExp } = require('../constants/');
 
 const userSchema = Schema(
   {
@@ -23,7 +23,7 @@ const userSchema = Schema(
     },
     avatarURL: {
       type: String,
-      default: '/no-picture.svg',
+      default: 'public\\no-picture.svg',
     },
     token: {
       type: String,
@@ -41,11 +41,11 @@ userSchema.methods.setPassword = async function (password) {
   }
 };
 
-userSchema.methods.setAvatarUrl = async function (email) {
+userSchema.methods.setAvatarURL = async function (email) {
   try {
     this.avatarURL = await gravatar.url(email, {
       protocol: 'http',
-      s: '100',
+      s: '250',
       d: 'retro',
     });
   } catch (error) {

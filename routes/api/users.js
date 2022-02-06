@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const fs = require('fs/promises');
 const { Conflict, Unauthorized } = require('http-errors');
 
 require('dotenv').config();
 const { SECRET_KEY } = process.env;
 const { User } = require('../../models/');
-const { authenticate } = require('../../middlewares/');
+const { authenticate, upload } = require('../../middlewares/');
+const { avatarsDir } = require('../../constants/');
+const { renameFile, imgNormalize } = require('../../helpers/');
 
 // signup user
 router.post('/signup', async (req, res, next) => {
@@ -112,27 +116,37 @@ router.patch('/', authenticate, async (req, res, next) => {
 
 //! add helper for rename picture
 
-router.patch('/avatars', authenticate, async (req, res, next) => {
-  try {
-    const { _id } = req.user;
-    const { avatarURL } = req.body;
-    const newAvatarURL = await User.findOneAndUpdate(
-      { _id },
-      { avatarURL },
-      {
-        new: true,
-        select: '-createdAt -updatedAt -password - subscription -token',
-      },
-    );
+// avatar upload
+router.patch(
+  '/avatars',
+  [authenticate, upload.single('avatar')],
+  async (req, res, next) => {
+    try {
+      const id = req.user._id;
+      const { path: tempUpload, filename } = req.file;
+      const newFileName = await renameFile(filename, id);
+      const fileUpload = await path.join(avatarsDir, newFileName);
+      await imgNormalize(tempUpload, 'avatar');
+      await fs.rename(tempUpload, fileUpload);
+      const avatarURL = path.join('./public/avatars', newFileName);
+      await User.findByIdAndUpdate(
+        req.user._id,
+        { avatarURL },
+        {
+          new: true,
+          select: '-createdAt -updatedAt -password -subscription -token',
+        },
+      );
 
-    res.json({
-      status: 'updated',
-      code: 200,
-      data: { User: newAvatarURL },
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+      res.json({
+        status: 'updated',
+        code: 200,
+        data: { User: avatarURL },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 module.exports = router;

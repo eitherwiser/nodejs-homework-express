@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const { BadRequest } = require('http-errors');
-const { emailRegExp } = require('../../helpers');
+const { emailRegExp } = require('../../constants');
 
 const userSignup = Joi.object({
   email: Joi.string().pattern(emailRegExp).required(),
@@ -18,18 +18,12 @@ const userSubscription = Joi.object({
   subscription: Joi.string().valid('starter', 'business', 'pro').required(),
 });
 
-const userAvatarUpdate = Joi.object({
-  avatarURL: Joi.string().required(),
-});
-
 const errorWrapper = validationResult => {
   const { error } = validationResult;
   if (error) {
     throw new BadRequest(error.message);
   }
 };
-
-// !remake with try-catch
 
 const joiUserValidation = (req, res, next) => {
   if (req.method === 'POST') {
@@ -41,9 +35,6 @@ const joiUserValidation = (req, res, next) => {
     }
   }
   if (req.method === 'PATCH') {
-    if (req.originalUrl === '/api/users/avatars') {
-      errorWrapper(userAvatarUpdate.validate(req.body));
-    }
     if (req.originalUrl === '/api/users/') {
       errorWrapper(userSubscription.validate(req.body));
     }

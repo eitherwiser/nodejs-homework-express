@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const { emailRegExp, phoneRegExp } = require('../helpers');
+const { emailRegExp, phoneRegExp } = require('../constants/');
 
 const contactSchema = Schema(
   {

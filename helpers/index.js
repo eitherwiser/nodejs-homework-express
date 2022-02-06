@@ -1,6 +1,9 @@
-const { phoneRegExp, emailRegExp, } = require('./constants/RegExp.js');
+// file-system
+const renameFile = require('./file-system/renameFile.js');
+const imgNormalize = require('./file-system/imgNormalize.js');
 
 module.exports = {
-  phoneRegExp,
-  emailRegExp,
+  // file-system
+  imgNormalize,
+  renameFile,
 };
