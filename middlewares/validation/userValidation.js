@@ -1,10 +1,11 @@
 const Joi = require('joi');
 const { BadRequest } = require('http-errors');
-const { emailRegExp } = require('../../helpers');
+const { emailRegExp } = require('../../constants');
 
 const userSignup = Joi.object({
   email: Joi.string().pattern(emailRegExp).required(),
   password: Joi.string().min(6).required(),
+  avatarURL: Joi.string(),
   subscription: Joi.string().default('starter'),
 });
 
@@ -34,7 +35,9 @@ const joiUserValidation = (req, res, next) => {
     }
   }
   if (req.method === 'PATCH') {
-    errorWrapper(userSubscription.validate(req.body));
+    if (req.originalUrl === '/api/users/') {
+      errorWrapper(userSubscription.validate(req.body));
+    }
   }
   next();
 };

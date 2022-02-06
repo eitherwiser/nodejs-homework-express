@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const fs = require('fs/promises');
 const { Conflict, Unauthorized } = require('http-errors');
 
 require('dotenv').config();
 const { SECRET_KEY } = process.env;
 const { User } = require('../../models/');
-const { authenticate } = require('../../middlewares/');
+const { authenticate, upload } = require('../../middlewares/');
+const { avatarsDir } = require('../../constants/');
+const { renameFile, imgNormalize } = require('../../helpers/');
 
 // signup user
 router.post('/signup', async (req, res, next) => {
@@ -19,6 +23,7 @@ router.post('/signup', async (req, res, next) => {
 
     const newUser = new User({ email, subscription });
     await newUser.setPassword(password);
+    await newUser.setAvatarURL(email);
     await newUser.save();
 
     res.status(201).json({
@@ -108,5 +113,40 @@ router.patch('/', authenticate, async (req, res, next) => {
     next(error);
   }
 });
+
+//! add helper for rename picture
+
+// avatar upload
+router.patch(
+  '/avatars',
+  [authenticate, upload.single('avatar')],
+  async (req, res, next) => {
+    try {
+      const id = req.user._id;
+      const { path: tempUpload, filename } = req.file;
+      const newFileName = await renameFile(filename, id);
+      const fileUpload = await path.join(avatarsDir, newFileName);
+      await imgNormalize(tempUpload, 'avatar');
+      await fs.rename(tempUpload, fileUpload);
+      const avatarURL = path.join('./public/avatars', newFileName);
+      await User.findByIdAndUpdate(
+        req.user._id,
+        { avatarURL },
+        {
+          new: true,
+          select: '-createdAt -updatedAt -password -subscription -token',
+        },
+      );
+
+      res.json({
+        status: 'updated',
+        code: 200,
+        data: { User: avatarURL },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 module.exports = router;

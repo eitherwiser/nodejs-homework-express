@@ -130,3 +130,5 @@ dist
 .gitignore
 
 #README.md
+
+nodemon.json
