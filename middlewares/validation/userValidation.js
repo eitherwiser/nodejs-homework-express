@@ -18,6 +18,12 @@ const userSubscription = Joi.object({
   subscription: Joi.string().valid('starter', 'business', 'pro').required(),
 });
 
+const emailVerification = Joi.object({
+  email: Joi.string()
+    .pattern(emailRegExp)
+    .required('Required field "email" is not match'),
+});
+
 const errorWrapper = validationResult => {
   const { error } = validationResult;
   if (error) {
@@ -32,6 +38,9 @@ const joiUserValidation = (req, res, next) => {
     }
     if (req.originalUrl === '/api/users/login') {
       errorWrapper(userLogin.validate(req.body));
+    }
+    if (req.originalUrl === '/api/users/verify') {
+      errorWrapper(emailVerification.validate(req.body));
     }
   }
   if (req.method === 'PATCH') {
